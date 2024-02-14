@@ -1,104 +1,72 @@
 package com.example.speedtest
 
-import android.content.Context
+
+import android.os.Bundle
 import android.util.Log
-import com.speedchecker.android.sdk.Public.SpeedTestListener
-import com.speedchecker.android.sdk.Public.SpeedTestResult
+import android.widget.Button
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import com.speedchecker.android.sdk.SpeedcheckerSDK
-import java.text.DecimalFormat
 
-class SpeedTestManager(
-    context: Context, private val callback: SpeedTestCallback) : SpeedTestListener {
+class MainActivity : AppCompatActivity() {
+    private lateinit var speedometerView: SpeedometerView
+    private lateinit var startSpeedTestButton: Button
+    private lateinit var downloadSpeedTextView: TextView
+    private lateinit var uploadSpeedTextView: TextView
+    private var mSpeedTestManager: SpeedTestManager? = null
 
-    private val mContext: Context = context
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
-    interface SpeedTestCallback {
-        fun onUploadSpeedResult(result: String?)
-        fun onDownloadSpeedResult(result: String?)
-        fun onTestFinished()
-
-    }
-
-    init {
-        SpeedcheckerSDK.init(mContext)
-        SpeedcheckerSDK.SpeedTest.setOnSpeedTestListener(this)
-    }
-
-    override fun onTestStarted() {
-        TODO("Not yet implemented")
-    }
-
-    override fun onFetchServerFailed() {
-        TODO("Not yet implemented")
-    }
-
-    override fun onFindingBestServerStarted() {
-        TODO("Not yet implemented")
-    }
-
-    override fun onTestFinished(speedTestResult: SpeedTestResult) {
-        val number = speedTestResult.uploadSpeed
-        val df = DecimalFormat("#.#")
-        val result = df.format(number)
-        val finalStr = "$result Mb/s"
-
-        val number2 = speedTestResult.downloadSpeed
-        val df2 = DecimalFormat("#.#")
-        val result2 = df2.format(number2)
-        val finalStr2 = "$result2 Mb/s"
-
-        callback.onUploadSpeedResult(finalStr)
-        callback.onDownloadSpeedResult(finalStr2)
-        callback.onTestFinished()
+        speedometerView = findViewById(R.id.speedometer)
+        startSpeedTestButton = findViewById(R.id.startSpeedTestButton)
+        downloadSpeedTextView = findViewById(R.id.downloadSpeedTextView)
+        uploadSpeedTextView = findViewById(R.id.uploadSpeedTextView)
+        startSpeedTestButton.setOnClickListener { SpeedcheckerSDK.SpeedTest.startTest(this@MainActivity) }
 
 
+        mSpeedTestManager = SpeedTestManager(this, object : SpeedTestManager.SpeedTestCallback {
 
-        Log.i("UploadSpeedTest", "UploadSpeedTest$finalStr")
-        Log.i("DownloadSpeedTest", "DownloadSpeedTest$finalStr2")
-    }
 
-    override fun onPingStarted() {
-        Log.d("SpeedTestManager", "Ping started")
-    }
+            override fun onUploadSpeedResult(result: String?) {
+                uploadSpeedTextView.setText(result)
+                Log.d("SpeedTest", "Vitesse d'upload reçue : $result")
+            }
 
-    override fun onPingFinished(p0: Int, p1: Int) {
-        Log.d("SpeedTestManager", "onPingFinished")
-    }
+            override fun onDownloadSpeedResult(result: String?) {
+                downloadSpeedTextView.setText(result)
+                Log.d("SpeedTest", "Vitesse de téléchargement reçue : $result")
+            }
 
-    override fun onDownloadTestStarted() {
-        Log.d("SpeedTestManager", "onDownloadTestStarted")
-    }
+            override fun onTestFinished() {
+                runOnUiThread {
+                    speedometerView.reset()
+                }
+            }
 
-    override fun onDownloadTestProgress(p0: Int, p1: Double, p2: Double) {
+            override fun onTestInterrupted() {
+                TODO("Not yet implemented")
+            }
 
-        Log.d("SpeedTestManager", "onDownloadTestProgress")
-    }
+            override fun onUploadProgress(progress: Double) {
+                runOnUiThread {
+                    speedometerView.setProgress(progress.toFloat())
+                }
+            }
 
-    override fun onDownloadTestFinished(p0: Double) {
-        Log.d("SpeedTestManager", "onDownloadTestFinished")
-    }
+            override fun onDownloadProgress(progress: Double) {
+                runOnUiThread {
+                    speedometerView.setProgress(progress.toFloat())
+                }
+            }
 
-    override fun onUploadTestStarted() {
-        Log.d("SpeedTestManager", "onUploadTestStarted")
-    }
 
-    override fun onUploadTestProgress(p0: Int, p1: Double, p2: Double) {
-        Log.d("SpeedTestManager", "onUploadTestProgress")
-    }
+        })
 
-    override fun onUploadTestFinished(p0: Double) {
-        Log.d("SpeedTestManager", "onUploadTestFinished")
-    }
 
-    override fun onTestWarning(p0: String?) {
-        Log.d("SpeedTestManager", "onTestWarning")
-    }
-
-    override fun onTestFatalError(p0: String?) {
-        Log.d("SpeedTestManager", "onTestFatalError")
-    }
-
-    override fun onTestInterrupted(p0: String?) {
-        Log.d("SpeedTestManager", "onTestInterrupted")
     }
 }
+
+
+
