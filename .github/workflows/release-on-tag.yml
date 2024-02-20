@@ -9,7 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -25,7 +24,6 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
-
   apk:
     needs: build
     runs-on: ubuntu-latest
@@ -35,7 +33,7 @@ jobs:
       - name: Build debug APK
         run: ./gradlew assembleDebug --stacktrace
 
-      - name: Upload APK to Github Artifacts
+      - name: Upload APK to GitHub Artifacts
         uses: actions/upload-artifact@v3.1.1
         with:
           name: app-debug-apk
@@ -56,7 +54,7 @@ jobs:
       - name: Create Release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref_name }}
           release_name: Release ${{ github.ref_name }}
