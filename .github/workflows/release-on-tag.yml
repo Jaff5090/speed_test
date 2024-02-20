@@ -2,6 +2,7 @@ name: Release Workflow
 
 on:
   push:
+    branches: [ "master" ]
     tags:
       - 'v*'
 
@@ -23,6 +24,14 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew build
+               - name: Generate APK
+               run: ./gradlew assembleRelease
+
+      - name: Upload APK to Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-release.apk
+          path: app/build/outputs/apk/release/app-release.apk
 
   release:
     needs: build
@@ -39,4 +48,14 @@ jobs:
           release_name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
+
+      - name: Upload APK to Release
+        uses: actions/upload-release-asset@v1
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+            upload_url: ${{ steps.create_release.outputs.upload_url }}
+            asset_path: ./app/build/outputs/apk/release/app-release.apk
+            asset_name: app-release.apk
+            asset_content_type: application/vnd.android.package-archive
 
