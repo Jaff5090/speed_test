@@ -24,27 +24,8 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
-  apk:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
-
-      - name: Build APK
-        run: ./gradlew assembleDebug
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v2
-        with:
-          name: app-debug.apk
-          path: app/build/outputs/apk/debug/app-debug.apk
-
-
   release:
-    needs: apk
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
