@@ -18,6 +18,9 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
 
+      - name: Grant execute permission to Gradlew
+        run: chmod +x ./gradlew
+
       - name: Build with Gradle
         run: ./gradlew build
 
@@ -25,15 +28,14 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Create Release
         uses: actions/create-release@v4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.event.ref }}
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
