@@ -2,6 +2,7 @@ name: Release Workflow
 
 on:
   push:
+    branches: [ "master" ]
     tags:
       - 'v*'
 
@@ -23,8 +24,8 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew build
-               - name: Generate APK
-               run: ./gradlew assembleRelease
+      - name: Generate APK
+        run: ./gradlew assembleRelease
 
       - name: Upload APK to Artifacts
         uses: actions/upload-artifact@v2
