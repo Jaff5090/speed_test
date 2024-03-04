@@ -10,7 +10,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build Docker Image
-        run: docker build . -t android-build-env
+        run: docker build -f deploy.Dockerfile . -t android-build-env
 
       - name: Run Build in Docker Container
         run: docker run --rm -v "$PWD":/app android-build-env /bin/sh -c "./gradlew build"
