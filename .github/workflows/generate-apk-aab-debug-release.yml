@@ -1,7 +1,7 @@
 name: Generated APK AAB (Upload - Create Artifact To Github Action)
 
 env:
-	main_project_module: app
+	main_project_module: SpeedTest
 
 	# The name of the Play Store
 	playstore_name: Frogobox ID
