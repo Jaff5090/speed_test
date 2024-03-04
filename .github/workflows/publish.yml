@@ -1,32 +1,27 @@
-name: Github Publish
+name: Publish Library
 
+on:
+	push:
+		tags:
+			- 'v*'
 
- on:
-	  workflow_dispatch:
-	jobs:
-	  build:
-	    runs-on: ubuntu-latest
-	    steps:
-	      # 1
-	      - uses: dawidd6/action-download-artifact@v2
-	        with:
-	          github_token: ${{secrets.GITHUB_TOKEN}}
-	          workflow: build.yml
-	          workflow_conclusion: success
-	          branch: floss
-	          name: release.apk
-	          path: downloads
-	          if_no_artifact_found: fail
-	      # 2
-	      - name: Generate release tag
-	        id: tag
-	        run: |
-	          echo "::set-output name=release_tag::APP_$(date +"%Y.%m.%d_%H-%M")"
-	      # 3
-	      - name: Release
-	        uses: softprops/action-gh-release@v1
-	        env:
-	          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-	        with:
-	          tag_name: ${{ steps.tag.outputs.release_tag }}
-	          files: downloads/release-signed.apk
+jobs:
+	build-and-publish:
+		runs-on: ubuntu-latest
+
+		steps:
+			- uses: actions/checkout@v2
+
+			- name: Set up JDK 11
+			  uses: actions/setup-java@v2
+			  with:
+				  java-version: '11'
+				  distribution: 'adopt'
+
+			- name: Grant execute permission for gradlew
+			  run: chmod +x gradlew
+
+			- name: Build and Publish
+			  run: ./gradlew publishReleasePublicationToGitHubRepository
+			  env:
+				  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
