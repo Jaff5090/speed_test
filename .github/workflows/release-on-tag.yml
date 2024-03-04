@@ -1,4 +1,4 @@
-name: Release Workflow
+name: Publish Library
 
 on:
   push:
@@ -6,36 +6,22 @@ on:
       - 'v*'
 
 jobs:
-  build:
+  build-and-publish:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v2
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: '11'
+          distribution: 'adopt'
 
-      - name: Grant execute permission to Gradlew
-        run: chmod +x ./gradlew
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
-      - name: Build with Gradle
-        run: ./gradlew build
-
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Create Release
-        uses: actions/create-release@v1
+      - name: Build and Publish
+        run: ./gradlew publishReleasePublicationToGitHubRepository
         env:
-          GITHUB_TOKEN: ${{ secrets.MY_PAT }}
-        with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
-          draft: false
-          prerelease: false
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
